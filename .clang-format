@@ -1,0 +1,8 @@
+---
+BasedOnStyle:			WebKit
+
+AllowAllArgumentsOnNextLine:	false
+AlignTrailingComments:		true
+AlignConsecutiveMacros:		true
+PointerAlignment:		Right
+...
