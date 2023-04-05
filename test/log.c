@@ -1,13 +1,12 @@
+#include <jsx/assert.h>
 #include <jsx/log.h>
-
-#include <assert.h>
 
 int main(int argc, char **argv)
 {
     (void)argc;
     (void)argv;
 
-    assert(jsx_log_level() == JsxLogLevelInfo);
+    jsx_assert(jsx_log_level() == JsxLogLevelInfo);
 
     jsx_log_set_level(JsxLogLevelTrace);
     jsx_log_enable_feature(JsxLogFeatureTimestamps);
