@@ -34,7 +34,7 @@ if(JSX_BUILD_TESTS)
     target_link_libraries(test-test PUBLIC jsx_test)
 endif()
 
-file(GLOB JSX_SOURCE include/jsx/*.h include/jsx/*.hpp lib/*.c lib/*.cpp)
+file(GLOB JSX_SOURCE include/jsx/*.h include/jsx/*.hpp lib/*.c lib/*.cpp test/*.c test/*.cpp)
 add_custom_target(format
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMAND clang-format -i ${JSX_SOURCE}
