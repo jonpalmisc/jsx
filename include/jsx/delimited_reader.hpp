@@ -30,7 +30,9 @@
 
 #pragma once
 
+#include <optional>
 #include <string_view>
+#include <vector>
 
 namespace jsx {
 
@@ -38,16 +40,48 @@ class DelimitedReader {
     std::string_view m_data;
     size_t m_point;
 
-    char m_delimiter;
-    char m_quote;
-    char m_escape;
+    char m_field_delim;
+    char m_group_delim;
+    char m_quote_char;
+    char m_escape_char;
 
-    std::string_view selection() const;
+    std::optional<std::string_view> next_field_internal(bool consume_group_delimiter = false);
 
 public:
-    DelimitedReader(std::string_view data, char delimiter = ',', char quote = '"', char escape = '\\');
+    DelimitedReader(std::string_view data, char field_delimiter = ',', char group_delimiter = '\n',
+        char quote_char = '"', char escape_char = '\\');
 
-    std::string_view next_field();
+    /// Attempt to get the next field present in the input.
+    std::optional<std::string_view> next_field();
+
+    /// Get the next group of fields present in the input.
+    ///
+    /// The number of fields returned is not necessarily guaranteed to match the
+    /// number returned in any previous calls to this function.
+    std::vector<std::string_view> next_group();
+
+    /// Reset the reader's position to the start of the input.
+    void reset();
+
+    /// Set the field delimiter character.
+    ///
+    /// Calling this method in the middle of parsing is undefined behavior.
+    void set_field_delimiter(char delimiter);
+
+    /// Set the group delimiter character.
+    ///
+    /// Calling this method in the middle of parsing is undefined behavior.
+    void set_group_delimiter(char delimiter);
+
+    /// Set the field quote character.
+    ///
+    /// Calling this method in the middle of parsing is undefined behavior.
+    void set_quote_char(char character);
+
+    /// Set the escape character used in quoted fields.
+    ///
+    /// Calling this method in the middle of parsing is undefined behavior.
+    void set_escape_char(char character);
 };
 
 }

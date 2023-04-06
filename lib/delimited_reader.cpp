@@ -32,27 +32,95 @@
 
 using namespace jsx;
 
-DelimitedReader::DelimitedReader(std::string_view data, char delimiter, char quote, char escape)
+DelimitedReader::DelimitedReader(std::string_view data, char field_delimiter, char group_delimiter,
+    char quote_char, char escape_char)
     : m_data(data)
     , m_point(0)
-    , m_delimiter(delimiter)
-    , m_quote(quote)
-    , m_escape(escape)
+    , m_field_delim(field_delimiter)
+    , m_group_delim(group_delimiter)
+    , m_quote_char(quote_char)
+    , m_escape_char(escape_char)
 {
 }
 
-std::string_view DelimitedReader::next_field()
+std::optional<std::string_view> DelimitedReader::next_field_internal(bool preserve_group_delim)
 {
     auto mark = m_point;
 
-    bool found_delimiter = false;
+    // TODO: Make this a for loop.
+    char last_char = 0;
     while (m_point < m_data.size()) {
-        if (m_data[m_point++] == m_delimiter) {
-            found_delimiter = true;
+        last_char = m_data[m_point++];
+
+        // Stop when a field or group delimiter is reached.
+        if (last_char == m_field_delim || last_char == m_group_delim)
             break;
-        }
     }
 
-    auto span = (found_delimiter ? m_point - 1 : m_point) - mark;
+    auto span = m_point - mark;
+
+    // If the last character read was a delimiter, the span should be reduced
+    // by one to avoid including it in the returned field. However, if the
+    // stream ended abruptly, the last read character is actually part of the
+    // field and should be included.
+    if (last_char == m_field_delim || last_char == m_group_delim) {
+        --span;
+
+        // If a group delimiter was reached, the point was advanced past it in
+        // the loop above; if the caller has requested to "preserve" the group
+        // delimiter, roll back the point by one character.
+        if (last_char == m_group_delim && preserve_group_delim)
+            --m_point;
+    }
+
     return m_data.substr(mark, span);
+}
+
+std::optional<std::string_view> DelimitedReader::next_field()
+{
+    return next_field_internal();
+}
+
+std::vector<std::string_view> DelimitedReader::next_group()
+{
+    std::vector<std::string_view> fields;
+    while (m_point < m_data.size()) {
+        if (m_data[m_point] == m_group_delim) {
+            ++m_point;
+            break;
+        }
+
+        auto field = next_field_internal(true);
+        if (!field)
+            break;
+
+        fields.push_back(*field);
+    }
+
+    return fields;
+}
+
+void DelimitedReader::reset()
+{
+    m_point = 0;
+}
+
+void DelimitedReader::set_field_delimiter(char delimiter)
+{
+    m_field_delim = delimiter;
+}
+
+void DelimitedReader::set_group_delimiter(char delimiter)
+{
+    m_group_delim = delimiter;
+}
+
+void DelimitedReader::set_quote_char(char character)
+{
+    m_quote_char = character;
+}
+
+void DelimitedReader::set_escape_char(char character)
+{
+    m_escape_char = character;
 }
