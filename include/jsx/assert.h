@@ -32,7 +32,7 @@
 
 #include <stdio.h>
 
-#ifdef __clang__
+#ifdef __FILE_NAME__
 #define JSX_FILE __FILE_NAME__
 #else
 #define JSX_FILE __FILE__
