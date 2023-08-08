@@ -1,4 +1,4 @@
-//===-- jsx/log.h - Formatted logging interface ---------------------------===//
+//===-- jsx/timer.cpp - Simple wall clock timer ---------------------------===//
 //
 // Copyright (c) 2022-2023 Jon Palmisciano. All rights reserved.
 //
@@ -30,49 +30,37 @@
 //
 //===----------------------------------------------------------------------===//
 
-#pragma once
+#include <jsx/timer.h>
+
+#include <utility>
 
 namespace jsx {
 
-/// Log output levels.
-enum class LogLevel {
-  None,
-  Error,
-  Warning,
-  Info,
-  Debug,
-};
+constexpr auto now = std::chrono::high_resolution_clock::now;
 
-/// Optional output features.
-enum class LogOption {
-  /// Highlight log messages by type.
-  Highlighting,
+Timer::Timer(bool auto_start) : m_start(auto_start ? now() : Instant::min()) {}
 
-  /// Prefix log messages with the process uptime.
-  Timestamps
-};
+void Timer::reset() { m_start = now(); }
 
-/// Set the log output level.
-void set_log_level(LogLevel level);
+Instant Timer::start() const { return m_start; }
 
-/// Enable a log option.
-void enable_log_option(LogOption option);
+uint64_t Timer::elapsed_ms() const {
+  return std::chrono::duration_cast<std::chrono::milliseconds>(now() - m_start)
+      .count();
+}
 
-/// Disable a log option.
-void disable_log_option(LogOption option);
+ScopedTimer::ScopedTimer(uint64_t *elapsed_ms_out)
+    : m_elapsed_ms_out(elapsed_ms_out), m_on_destroy_callback(nullptr) {}
 
-#define JSX_LOG_FORMAT __attribute__((format(printf, 1, 2)))
+ScopedTimer::ScopedTimer(TimeoutCallbackMs on_destroy)
+    : m_elapsed_ms_out(nullptr), m_on_destroy_callback(std::move(on_destroy)) {}
 
-/// Log a formatted message to the standard error stream.
-JSX_LOG_FORMAT void log_error(char const *format, ...);
-
-/// Log a formatted warning message to the standard output stream.
-JSX_LOG_FORMAT void log_warn(char const *format, ...);
-
-/// Log a formatted info message to the standard output stream.
-JSX_LOG_FORMAT void log_info(char const *format, ...);
-
-/// Log a formatted debug message to the standard output stream.
-JSX_LOG_FORMAT void log_debug(char const *format, ...);
+ScopedTimer::~ScopedTimer() {
+  if (m_on_destroy_callback) {
+    m_on_destroy_callback(elapsed_ms());
+  } else if (m_elapsed_ms_out) {
+    *m_elapsed_ms_out = elapsed_ms();
+  }
+}
 
 } // namespace jsx
