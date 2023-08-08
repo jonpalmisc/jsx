@@ -1,4 +1,4 @@
-//===-- jsx/log.h - Formatted logging interface ---------------------------===//
+//===-- jsx/timer.cpp - Simple wall clock timer ---------------------------===//
 //
 // Copyright (c) 2022-2023 Jon Palmisciano. All rights reserved.
 //
@@ -30,49 +30,36 @@
 //
 //===----------------------------------------------------------------------===//
 
-#pragma once
+#include <jsx/timer.h>
 
-namespace jsx::log {
+namespace jsx::timer {
 
-/// Log output levels.
-enum class Level {
-  None,
-  Error,
-  Warning,
-  Info,
-  Debug,
-};
+constexpr auto now = std::chrono::high_resolution_clock::now;
 
-/// Optional output features.
-enum class Feature {
-  /// Highlight log messages by type.
-  Highlighting,
+Timer::Timer(bool auto_start)
+    : m_start(auto_start ? now() : TimePoint::min()) {}
 
-  /// Prefix log messages with the process uptime.
-  Timestamps
-};
+void Timer::reset() { m_start = now(); }
 
-/// Set the log output level.
-void set_level(Level level);
+TimePoint Timer::start() const { return m_start; }
 
-/// Enable an optional feature.
-void enable_feature(Feature feature);
+uint64_t Timer::elapsed_ms() const {
+  return std::chrono::duration_cast<std::chrono::milliseconds>(now() - m_start)
+      .count();
+}
 
-/// Disable an optional feature.
-void disable_feature(Feature feature);
+ScopedTimer::ScopedTimer(uint64_t *elapsed_ms_out)
+    : m_elapsed_ms_out(elapsed_ms_out), m_on_destroy_callback(nullptr) {}
 
-#define JSX_LOG_FORMAT __attribute__((format(printf, 1, 2)))
+ScopedTimer::ScopedTimer(TimeoutCallbackMs on_destroy)
+    : m_elapsed_ms_out(nullptr), m_on_destroy_callback(on_destroy) {}
 
-/// Log a formatted message to the standard error stream.
-JSX_LOG_FORMAT void error(char const *format, ...);
+ScopedTimer::~ScopedTimer() {
+  if (m_on_destroy_callback) {
+    m_on_destroy_callback(elapsed_ms());
+  } else if (m_elapsed_ms_out) {
+    *m_elapsed_ms_out = elapsed_ms();
+  }
+}
 
-/// Log a formatted warning message to the standard output stream.
-JSX_LOG_FORMAT void warn(char const *format, ...);
-
-/// Log a formatted info message to the standard output stream.
-JSX_LOG_FORMAT void info(char const *format, ...);
-
-/// Log a formatted debug message to the standard output stream.
-JSX_LOG_FORMAT void debug(char const *format, ...);
-
-} // namespace jsx::log
+} // namespace jsx::timer

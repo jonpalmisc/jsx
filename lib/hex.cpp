@@ -1,4 +1,4 @@
-//===-- jsx/log.h - Formatted logging interface ---------------------------===//
+//===-- jsx/hex.cpp - Hexadecimal encoding/decoding & formatting ----------===//
 //
 // Copyright (c) 2022-2023 Jon Palmisciano. All rights reserved.
 //
@@ -30,49 +30,24 @@
 //
 //===----------------------------------------------------------------------===//
 
-#pragma once
+#include <jsx/hex.h>
 
-namespace jsx::log {
+#include <sstream>
 
-/// Log output levels.
-enum class Level {
-  None,
-  Error,
-  Warning,
-  Info,
-  Debug,
-};
+namespace jsx::hex {
 
-/// Optional output features.
-enum class Feature {
-  /// Highlight log messages by type.
-  Highlighting,
+std::string encode(std::vector<uint8_t> data) {
+  return encode(data.data(), data.size());
+}
 
-  /// Prefix log messages with the process uptime.
-  Timestamps
-};
+std::string encode(uint8_t const *data, size_t length) {
+  std::stringstream result_stream;
 
-/// Set the log output level.
-void set_level(Level level);
+  result_stream << std::hex;
+  for (size_t i = 0; i < length; ++i)
+    result_stream << static_cast<uint32_t>(data[i]);
 
-/// Enable an optional feature.
-void enable_feature(Feature feature);
+  return result_stream.str();
+}
 
-/// Disable an optional feature.
-void disable_feature(Feature feature);
-
-#define JSX_LOG_FORMAT __attribute__((format(printf, 1, 2)))
-
-/// Log a formatted message to the standard error stream.
-JSX_LOG_FORMAT void error(char const *format, ...);
-
-/// Log a formatted warning message to the standard output stream.
-JSX_LOG_FORMAT void warn(char const *format, ...);
-
-/// Log a formatted info message to the standard output stream.
-JSX_LOG_FORMAT void info(char const *format, ...);
-
-/// Log a formatted debug message to the standard output stream.
-JSX_LOG_FORMAT void debug(char const *format, ...);
-
-} // namespace jsx::log
+} // namespace jsx::hex

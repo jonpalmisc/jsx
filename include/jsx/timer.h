@@ -1,4 +1,4 @@
-//===-- jsx/log.h - Formatted logging interface ---------------------------===//
+//===-- jsx/timer.h - Simple wall clock timer -----------------------------===//
 //
 // Copyright (c) 2022-2023 Jon Palmisciano. All rights reserved.
 //
@@ -32,47 +32,54 @@
 
 #pragma once
 
-namespace jsx::log {
+#include <chrono>
+#include <string>
 
-/// Log output levels.
-enum class Level {
-  None,
-  Error,
-  Warning,
-  Info,
-  Debug,
+namespace jsx::timer {
+
+using TimePoint = std::chrono::time_point<std::chrono::high_resolution_clock>;
+
+/// Simple "high-resolution" timer for measuring elapsed time.
+class Timer {
+  TimePoint m_start;
+
+public:
+  /// Create a new timer.
+  ///
+  /// Automatically starts the timer if \p auto_start is true (default).
+  Timer(bool auto_start = true);
+
+  /// Reset the starting point of the timer to now.
+  void reset();
+
+  /// Get the time point the timer was started at.
+  [[nodiscard]] TimePoint start() const;
+
+  /// Get the amount of elapsed time (in milliseconds) since the timer was
+  /// started.
+  [[nodiscard]] uint64_t elapsed_ms() const;
 };
 
-/// Optional output features.
-enum class Feature {
-  /// Highlight log messages by type.
-  Highlighting,
+/// Simple scoped-based "high-resolution" timer for measuring elapsed time.
+///
+/// Starts counting as soon as it is initialized (enters scope) and reports the
+/// elapsed time when it falls out of scope. The elapsed time can either be
+/// written to a pre-determined location or by executing a callback.
+class ScopedTimer : public Timer {
+  using TimeoutCallbackMs = std::function<void(uint64_t elapsed_ms)>;
 
-  /// Prefix log messages with the process uptime.
-  Timestamps
+  uint64_t *m_elapsed_ms_out;
+  TimeoutCallbackMs m_on_destroy_callback;
+
+public:
+  /// Create a new scoped timer which writes the elapsed time (in milliseconds)
+  /// to \p elapsed_ms_out upon falling out of scope.
+  ScopedTimer(uint64_t *elapsed_ms_out);
+
+  /// Create a new scoped timer which runs the provided \p on_destroy callback
+  /// (with the elapsed time as a parameter) upon falling out of scope.
+  ScopedTimer(TimeoutCallbackMs on_destroy);
+  ~ScopedTimer();
 };
 
-/// Set the log output level.
-void set_level(Level level);
-
-/// Enable an optional feature.
-void enable_feature(Feature feature);
-
-/// Disable an optional feature.
-void disable_feature(Feature feature);
-
-#define JSX_LOG_FORMAT __attribute__((format(printf, 1, 2)))
-
-/// Log a formatted message to the standard error stream.
-JSX_LOG_FORMAT void error(char const *format, ...);
-
-/// Log a formatted warning message to the standard output stream.
-JSX_LOG_FORMAT void warn(char const *format, ...);
-
-/// Log a formatted info message to the standard output stream.
-JSX_LOG_FORMAT void info(char const *format, ...);
-
-/// Log a formatted debug message to the standard output stream.
-JSX_LOG_FORMAT void debug(char const *format, ...);
-
-} // namespace jsx::log
+} // namespace jsx::timer
