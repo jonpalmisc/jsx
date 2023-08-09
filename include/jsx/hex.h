@@ -42,4 +42,14 @@ std::string encode(std::vector<uint8_t> data);
 /// Encode \p length bytes of \p data to a hexadecimal string.
 std::string encode(uint8_t const *data, size_t length);
 
+/// Create a formatted hex dump of \p data.
+///
+/// The effective address of data will start at \p base_address.
+std::string dump(std::vector<uint8_t> data, uint64_t base_address = 0);
+
+/// Create a formatted hex dump of \p length bytes of \p data.
+///
+/// The effective address of data will start at \p base_address.
+std::string dump(uint8_t const *data, size_t length, uint64_t base_address = 0);
+
 } // namespace jsx::hex
