@@ -38,20 +38,20 @@
 
 namespace jsx {
 
-class Config {
+class LogConfig {
 public:
   LogLevel level;
   std::unordered_map<LogOption, bool> features;
 
-  Config() : level(LogLevel::Info) {
+  LogConfig() : level(LogLevel::Info) {
     features[LogOption::Highlighting] = true;
     features[LogOption::Timestamps] = false;
   }
 };
 
-static Config g_config;
+static LogConfig g_log_config;
 
-void set_log_level(LogLevel level) { g_config.level = level; }
+void set_log_level(LogLevel level) { g_log_config.level = level; }
 
 namespace ansi_escape {
 
@@ -62,8 +62,8 @@ constexpr auto fg_reset = "\x1b[0m";
 
 } // namespace ansi_escape
 
-void set_output_color(FILE *stream, LogLevel level) {
-  if (!g_config.features[LogOption::Highlighting])
+void set_log_color(FILE *stream, LogLevel level) {
+  if (!g_log_config.features[LogOption::Highlighting])
     return;
 
   switch (level) {
@@ -81,8 +81,8 @@ void set_output_color(FILE *stream, LogLevel level) {
   }
 }
 
-void clear_output_color(FILE *stream) {
-  if (!g_config.features[LogOption::Highlighting])
+void clear_log_color(FILE *stream) {
+  if (!g_log_config.features[LogOption::Highlighting])
     return;
 
   std::fprintf(stream, ansi_escape::fg_reset);
@@ -91,15 +91,15 @@ void clear_output_color(FILE *stream) {
 void log_internal(LogLevel level, char const *format, va_list args) {
   auto stream = level == LogLevel::Error ? stderr : stdout;
 
-  set_output_color(stream, level);
+  set_log_color(stream, level);
   std::vfprintf(stream, format, args);
-  clear_output_color(stream);
+  clear_log_color(stream);
   std::fprintf(stream, "\n");
 }
 
 #define INTERNAL_LOG_BODY(_level)                                              \
   std::va_list args;                                                           \
-  if ((_level) > g_config.level)                                               \
+  if ((_level) > g_log_config.level)                                           \
     return;                                                                    \
   va_start(args, format);                                                      \
   log_internal(_level, format, args);                                          \
