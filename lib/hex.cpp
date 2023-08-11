@@ -51,27 +51,39 @@ std::string encode(uint8_t const *data, size_t length) {
   return result_stream.str();
 }
 
-constexpr size_t dump_bytes_per_line = 16;
-constexpr size_t dump_bytes_per_column = 2;
+Dumper::Dumper()
+    : left_margin(2), right_margin(2), byte_margin(0), column_margin(1),
+      bytes_per_column(2), bytes_per_line(16), show_offset(true),
+      show_ascii(true) {}
 
-std::string dump(std::vector<uint8_t> data, uint64_t base_address) {
-  return dump(data.data(), data.size(), base_address);
+std::string Dumper::format(std::vector<uint8_t> data, uint64_t base_offset) {
+  return format(data.data(), data.size(), base_offset);
 }
 
-std::string dump(uint8_t const *data, size_t length, uint64_t base_address) {
-  std::stringstream dump_stream;
+std::string Dumper::format(uint8_t const *data, size_t size,
+                           uint64_t base_offset) {
+  std::stringstream dump;
+
+  auto left_margin_text = std::string(left_margin, ' ');
+  auto right_margin_text = std::string(right_margin, ' ');
+  auto column_margin_text = std::string(column_margin, ' ');
+  auto byte_margin_text = std::string(byte_margin, ' ');
 
   // Print a single line of the hex dump.
-  auto dump_line = [](std::stringstream &dump, uint64_t offset,
-                      uint8_t const *data, size_t length) {
-    // Prefix each line with its address/offset, also configure zero padding.
-    dump << std::setfill('0') << std::setw(8) << std::hex << offset << ":  ";
+  auto dump_line = [&, this](uint64_t offset, uint8_t const *data,
+                             size_t length) {
+    // Configure output formatting.
+    dump << std::setfill('0') << std::hex;
+
+    // Prefix each line with its address/offset, if requested.
+    if (show_offset)
+      dump << std::setw(8) << ":" << left_margin_text;
 
     // Print each byte in the line while grouping them into columns.
-    for (size_t i = 0; i < dump_bytes_per_line; ++i) {
+    for (size_t i = 0; i < bytes_per_line; ++i) {
       // Insert an extra space to separate columns.
-      if (i > 0 && i % dump_bytes_per_column == 0)
-        dump << ' ';
+      if (i > 0 && i % bytes_per_column == 0)
+        dump << column_margin_text;
 
       // If the next byte of data is present, print it; otherwise, print spaces
       // to fill the gap.
@@ -79,39 +91,44 @@ std::string dump(uint8_t const *data, size_t length, uint64_t base_address) {
         dump << std::setw(2) << static_cast<uint32_t>(data[i]);
       else
         dump << "  ";
-    }
-    dump << "  ";
 
-    // Print the same bytes again formatted as characters.
-    for (size_t i = 0; i < dump_bytes_per_line; ++i) {
-      if (i >= length) {
-        dump << ' ';
-        continue;
+      dump << byte_margin_text;
+    }
+
+    // Print the same bytes again formatted as characters, if requested.
+    if (show_ascii) {
+      dump << right_margin_text;
+
+      for (size_t i = 0; i < bytes_per_line; ++i) {
+        if (i >= length) {
+          dump << ' ';
+          continue;
+        }
+
+        // Display values that map to printable characters as characters, map
+        // all non-printable characters to a period.
+        auto display_char = data[i] >= 0x20 && data[i] < 0x7f ? data[i] : '.';
+        dump << static_cast<char>(display_char);
       }
-
-      // Display values that map to printable characters as characters, map all
-      // non-printable characters to a period.
-      auto display_char = data[i] >= 0x20 && data[i] < 0x7f ? data[i] : '.';
-      dump << static_cast<char>(display_char);
     }
+
     dump << "\n";
   };
 
   auto offset = 0;
-  while (length - offset >= dump_bytes_per_line) {
-    dump_line(dump_stream, base_address + offset, data + offset,
-              dump_bytes_per_line);
-    offset += dump_bytes_per_line;
+  while (size - offset >= bytes_per_line) {
+    dump_line(base_offset + offset, data + offset, bytes_per_line);
+    offset += bytes_per_line;
   }
 
   // In the case where the given data is not an even multiple of the bytes per
   // line, the above loop will not have formatted all of the available data and
   // a partial line will need to be emitted.
-  auto remainder = length - offset;
+  auto remainder = size - offset;
   if (remainder > 0)
-    dump_line(dump_stream, base_address + offset, data + offset, remainder);
+    dump_line(base_offset + offset, data + offset, remainder);
 
-  return dump_stream.str();
+  return dump.str();
 }
 
 } // namespace jsx::hex

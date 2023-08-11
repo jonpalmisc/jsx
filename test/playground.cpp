@@ -45,7 +45,7 @@ int main(int argc, char **argv) {
   auto hex_string = hex::encode({'A', 'A', 'A', 'A'});
   log::info("Printing \"AAAA\" in hex: %s", hex_string.c_str());
 
-  auto dump = hex::dump(dump_data, sizeof(dump_data), 0x1000);
+  auto dump = hex::Dumper().format(dump_data, sizeof(dump_data), 0x1000);
   log::debug("%s", dump.c_str());
 
   std::this_thread::sleep_for(std::chrono::milliseconds(34));

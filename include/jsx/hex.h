@@ -42,14 +42,46 @@ std::string encode(std::vector<uint8_t> data);
 /// Encode \p length bytes of \p data to a hexadecimal string.
 std::string encode(uint8_t const *data, size_t length);
 
-/// Create a formatted hex dump of \p data.
-///
-/// The effective address of data will start at \p base_address.
-std::string dump(std::vector<uint8_t> data, uint64_t base_address = 0);
+/// Configurable hex dump formatter.
+class Dumper {
+public:
+  /// Number of spaces to pad the left side of the content with.
+  size_t left_margin;
 
-/// Create a formatted hex dump of \p length bytes of \p data.
-///
-/// The effective address of data will start at \p base_address.
-std::string dump(uint8_t const *data, size_t length, uint64_t base_address = 0);
+  /// Number of spaces to pad the right side of the content with.
+  size_t right_margin;
+
+  /// Number of spaces to separate each byte with.
+  size_t byte_margin;
+
+  /// Number of spaces to separate groups with.
+  size_t column_margin;
+
+  /// Number of bytes per each column.
+  size_t bytes_per_column;
+
+  /// Number of bytes per each line.
+  size_t bytes_per_line;
+
+  /// Should the offset of each line be shown before its content?
+  bool show_offset;
+
+  /// Should an ASCII preview of each line be shown after its content?
+  bool show_ascii;
+
+  /// Create the default dump formatter; has `xxd`-like configuration.
+  Dumper();
+
+  /// Create a formatted hex dump of \p data.
+  ///
+  /// The effective offset of data will start at \p base_offset.
+  std::string format(std::vector<uint8_t> data, uint64_t base_offset = 0);
+
+  /// Create a formatted hex dump of \p size bytes of \p data.
+  ///
+  /// The effective offset of data will start at \p base_offset.
+  std::string format(uint8_t const *data, size_t size,
+                     uint64_t base_offset = 0);
+};
 
 } // namespace jsx::hex
