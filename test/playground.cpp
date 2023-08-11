@@ -21,6 +21,9 @@ uint8_t dump_data[] = {
 };
 
 int main(int argc, char **argv) {
+  (void)argc;
+  (void)argv;
+
   jsx::set_log_level(jsx::LogLevel::Debug);
 
   jsx::Timer clock;
