@@ -24,7 +24,7 @@ int main(int argc, char **argv) {
   (void)argc;
   (void)argv;
 
-  jsx::set_log_level(jsx::LogLevel::Debug);
+  jsx::set_log_level(jsx::LogLevel::Trace);
 
   jsx::Timer clock;
   {
@@ -43,6 +43,7 @@ int main(int argc, char **argv) {
     jsx::ScopedTimer info_debug_timer(&info_debug_time);
     jsx::log_info("This is an info message.");
     jsx::log_debug("This is a debug message.");
+    jsx::log_trace("This is a trace message.");
     std::this_thread::sleep_for(std::chrono::milliseconds(7));
   }
 

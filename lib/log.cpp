@@ -52,10 +52,14 @@ public:
 static LogConfig g_log_config;
 
 void set_log_level(LogLevel level) { g_log_config.level = level; }
+void set_log_option(LogOption option, bool enabled) {
+  g_log_config.features[option] = enabled;
+}
 
 namespace ansi_escape {
 
 constexpr auto fg_red = "\x1b[31m";
+constexpr auto fg_green = "\x1b[32m";
 constexpr auto fg_yellow = "\x1b[33m";
 constexpr auto fg_blue = "\x1b[34m";
 constexpr auto fg_reset = "\x1b[0m";
@@ -74,6 +78,9 @@ void set_log_color(FILE *stream, LogLevel level) {
     std::fprintf(stream, ansi_escape::fg_yellow);
     break;
   case LogLevel::Debug:
+    std::fprintf(stream, ansi_escape::fg_green);
+    break;
+  case LogLevel::Trace:
     std::fprintf(stream, ansi_escape::fg_blue);
     break;
   default:
@@ -109,5 +116,6 @@ void log_error(char const *format, ...) { INTERNAL_LOG_BODY(LogLevel::Error); }
 void log_info(char const *format, ...) { INTERNAL_LOG_BODY(LogLevel::Info); }
 void log_warn(char const *format, ...) { INTERNAL_LOG_BODY(LogLevel::Warning); }
 void log_debug(char const *format, ...) { INTERNAL_LOG_BODY(LogLevel::Debug); }
+void log_trace(char const *format, ...) { INTERNAL_LOG_BODY(LogLevel::Trace); }
 
 } // namespace jsx

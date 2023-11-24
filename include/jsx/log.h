@@ -41,6 +41,7 @@ enum class LogLevel {
   Warning,
   Info,
   Debug,
+  Trace,
 };
 
 /// Optional output features.
@@ -55,11 +56,8 @@ enum class LogOption {
 /// Set the log output level.
 void set_log_level(LogLevel level);
 
-/// Enable a log option.
-void enable_log_option(LogOption option);
-
-/// Disable a log option.
-void disable_log_option(LogOption option);
+/// Enable or disable a log option.
+void set_log_option(LogOption option, bool enabled);
 
 #define JSX_LOG_FORMAT __attribute__((format(printf, 1, 2)))
 
@@ -74,5 +72,8 @@ JSX_LOG_FORMAT void log_info(char const *format, ...);
 
 /// Log a formatted debug message to the standard output stream.
 JSX_LOG_FORMAT void log_debug(char const *format, ...);
+
+/// Log a formatted trace message to the standard output stream.
+JSX_LOG_FORMAT void log_trace(char const *format, ...);
 
 } // namespace jsx
