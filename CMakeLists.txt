@@ -7,6 +7,8 @@ function(add_jsx_library NAME)
   target_include_directories(jsx_${NAME} PUBLIC include)
   target_compile_features(jsx_${NAME} PRIVATE cxx_std_17)
   install(TARGETS jsx_${NAME} DESTINATION lib)
+
+  add_library(jsx::${NAME} ALIAS jsx_${NAME})
 endfunction()
 
 add_jsx_library(hex)
