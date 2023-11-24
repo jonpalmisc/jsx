@@ -25,6 +25,7 @@ int main(int argc, char **argv) {
   (void)argv;
 
   jsx::set_log_level(jsx::LogLevel::Trace);
+  jsx::set_log_option(LogOption::Color, true);
 
   jsx::Timer clock;
   {
@@ -50,7 +51,7 @@ int main(int argc, char **argv) {
   auto hex_string = hex_encode({'A', 'A', 'A', 'A'});
   jsx::log_info("Printing \"AAAA\" in hex: %s", hex_string.c_str());
 
-  auto dump = HexDumper().format(dump_data, sizeof(dump_data), 0x1000);
+  auto dump = jsx::hex_format_dump(dump_data, sizeof(dump_data), 0x1000);
   jsx::log_debug("%s", dump.c_str());
 
   std::this_thread::sleep_for(std::chrono::milliseconds(34));
