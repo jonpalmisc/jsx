@@ -77,7 +77,7 @@ std::string HexDumper::format(uint8_t const *data, size_t size,
 
     // Prefix each line with its address/offset, if requested.
     if (show_offset)
-      dump << std::setw(8) << ":" << left_margin_text;
+      dump << std::setw(8) << offset << ":" << left_margin_text;
 
     // Print each byte in the line while grouping them into columns.
     for (size_t i = 0; i < bytes_per_line; ++i) {
