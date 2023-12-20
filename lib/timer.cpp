@@ -37,29 +37,46 @@ namespace jsx {
 
 constexpr auto now = std::chrono::high_resolution_clock::now;
 
-Timer::Timer(bool auto_start) : m_start(auto_start ? now() : Instant::min()) {}
+Timer::Timer(bool auto_start)
+    : m_start(auto_start ? now() : Instant::min())
+{
+}
 
-void Timer::reset() { m_start = now(); }
+void Timer::reset()
+{
+    m_start = now();
+}
 
-Instant Timer::start() const { return m_start; }
+Instant Timer::start() const
+{
+    return m_start;
+}
 
-uint64_t Timer::elapsed_ms() const {
-  return std::chrono::duration_cast<std::chrono::milliseconds>(now() - m_start)
-      .count();
+uint64_t Timer::elapsed_ms() const
+{
+    return std::chrono::duration_cast<std::chrono::milliseconds>(now() - m_start)
+        .count();
 }
 
 ScopedTimer::ScopedTimer(uint64_t *elapsed_ms_out)
-    : m_elapsed_ms_out(elapsed_ms_out), m_on_destroy_callback(nullptr) {}
-
-ScopedTimer::ScopedTimer(TimeoutCallbackMs on_destroy)
-    : m_elapsed_ms_out(nullptr), m_on_destroy_callback(std::move(on_destroy)) {}
-
-ScopedTimer::~ScopedTimer() {
-  if (m_on_destroy_callback) {
-    m_on_destroy_callback(elapsed_ms());
-  } else if (m_elapsed_ms_out) {
-    *m_elapsed_ms_out = elapsed_ms();
-  }
+    : m_elapsed_ms_out(elapsed_ms_out)
+    , m_on_destroy_callback(nullptr)
+{
 }
 
-} // namespace jsx
+ScopedTimer::ScopedTimer(TimeoutCallbackMs on_destroy)
+    : m_elapsed_ms_out(nullptr)
+    , m_on_destroy_callback(std::move(on_destroy))
+{
+}
+
+ScopedTimer::~ScopedTimer()
+{
+    if (m_on_destroy_callback) {
+        m_on_destroy_callback(elapsed_ms());
+    } else if (m_elapsed_ms_out) {
+        *m_elapsed_ms_out = elapsed_ms();
+    }
+}
+
+}

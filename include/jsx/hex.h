@@ -46,53 +46,55 @@ std::string hex_encode(uint8_t const *data, size_t length);
 /// Configurable hex dump formatter.
 class HexDumper {
 public:
-  /// Number of spaces to pad the left side of the content with.
-  size_t left_margin;
+    /// Number of spaces to pad the left side of the content with.
+    size_t left_margin;
 
-  /// Number of spaces to pad the right side of the content with.
-  size_t right_margin;
+    /// Number of spaces to pad the right side of the content with.
+    size_t right_margin;
 
-  /// Number of spaces to separate each byte with.
-  size_t byte_margin;
+    /// Number of spaces to separate each byte with.
+    size_t byte_margin;
 
-  /// Number of spaces to separate groups with.
-  size_t column_margin;
+    /// Number of spaces to separate groups with.
+    size_t column_margin;
 
-  /// Number of bytes per each column.
-  size_t bytes_per_column;
+    /// Number of bytes per each column.
+    size_t bytes_per_column;
 
-  /// Number of bytes per each line.
-  size_t bytes_per_line;
+    /// Number of bytes per each line.
+    size_t bytes_per_line;
 
-  /// Should the offset of each line be shown before its content?
-  bool show_offset;
+    /// Should the offset of each line be shown before its content?
+    bool show_offset;
 
-  /// Should an ASCII preview of each line be shown after its content?
-  bool show_ascii;
+    /// Should an ASCII preview of each line be shown after its content?
+    bool show_ascii;
 
-  /// Create the default dump formatter; has `xxd`-like configuration.
-  HexDumper();
+    /// Create the default dump formatter; has `xxd`-like configuration.
+    HexDumper();
 
-  /// Create a formatted hex dump of \p size bytes of \p data.
-  ///
-  /// The effective offset of data will start at \p base_offset.
-  [[nodiscard]] std::string format(uint8_t const *data, size_t size,
-                                   uint64_t base_offset = 0) const;
-  [[nodiscard]] std::string format(std::vector<uint8_t> const &data,
-                                   uint64_t base_offset = 0) const;
+    /// Create a formatted hex dump of \p size bytes of \p data.
+    ///
+    /// The effective offset of data will start at \p base_offset.
+    [[nodiscard]] std::string format(uint8_t const *data, size_t size,
+        uint64_t base_offset = 0) const;
+    [[nodiscard]] std::string format(std::vector<uint8_t> const &data,
+        uint64_t base_offset = 0) const;
 };
 
 /// Create a formatted hex dump of \p data.
 ///
 /// The effective offset of data will start at \p base_offset.
-[[nodiscard]] inline std::string
-hex_format_dump(uint8_t const *data, size_t size, uint64_t base_offset = 0) {
-  return HexDumper().format(data, size, base_offset);
+[[nodiscard]] inline std::string hex_format_dump(uint8_t const *data,
+    size_t size, uint64_t base_offset = 0)
+{
+    return HexDumper().format(data, size, base_offset);
 }
 
-[[nodiscard]] inline std::string
-hex_format_dump(std::vector<uint8_t> const &data, uint64_t base_offset = 0) {
-  return hex_format_dump(data.data(), data.size(), base_offset);
+[[nodiscard]] inline std::string hex_format_dump(std::vector<uint8_t> const &data,
+    uint64_t base_offset = 0)
+{
+    return hex_format_dump(data.data(), data.size(), base_offset);
 }
 
-} // namespace jsx
+}

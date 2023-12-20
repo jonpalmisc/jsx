@@ -37,18 +37,18 @@ namespace jsx {
 
 /// Log output levels.
 enum class LogLevel {
-  None,
-  Error,
-  Warning,
-  Info,
-  Debug,
-  Trace,
+    None,
+    Error,
+    Warning,
+    Info,
+    Debug,
+    Trace,
 };
 
 /// Optional output features.
 enum class LogOption {
-  /// Color log messages by type.
-  Color,
+    /// Color log messages by type.
+    Color,
 };
 
 /// Set the log output level.
@@ -74,4 +74,4 @@ JSX_LOG_FORMAT void log_debug(char const *format, ...);
 /// Log a formatted trace message to the standard output stream.
 JSX_LOG_FORMAT void log_trace(char const *format, ...);
 
-} // namespace jsx
+}

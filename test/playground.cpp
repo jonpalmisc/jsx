@@ -17,48 +17,46 @@ uint8_t dump_data[] = {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x19, 0x00, 0x00, 0x00,
     0x28, 0x02, 0x00, 0x00, 0x5f, 0x5f, 0x54, 0x45, 0x58, 0x54, 0x00, 0x00,
-    0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00
 };
 
-int main(int argc, char **argv) {
-  (void)argc;
-  (void)argv;
+int main(int argc, char **argv)
+{
+    (void)argc;
+    (void)argv;
 
-  jsx::set_log_level(jsx::LogLevel::Trace);
-  jsx::set_log_option(LogOption::Color, true);
+    jsx::set_log_level(jsx::LogLevel::Trace);
+    jsx::set_log_option(LogOption::Color, true);
 
-  jsx::Timer clock;
-  {
-    jsx::ScopedTimer callback_timer([](uint64_t ms) {
-      jsx::log_info(
-          "Error and warning messages logged in %llu ms. (Expected: ~2 ms)",
-          ms);
-    });
-    jsx::log_error("This is an error message.");
-    jsx::log_warn("This is a warning message.");
-    std::this_thread::sleep_for(std::chrono::milliseconds(2));
-  }
+    jsx::Timer clock;
+    {
+        jsx::ScopedTimer callback_timer([](uint64_t ms) {
+            jsx::log_info("Error and warning messages logged in %llu ms. (Expected: ~2 ms)", ms);
+        });
 
-  uint64_t info_debug_time = 0;
-  {
-    jsx::ScopedTimer info_debug_timer(&info_debug_time);
-    jsx::log_info("This is an info message.");
-    jsx::log_debug("This is a debug message.");
-    jsx::log_trace("This is a trace message.");
-    std::this_thread::sleep_for(std::chrono::milliseconds(7));
-  }
+        jsx::log_error("This is an error message.");
+        jsx::log_warn("This is a warning message.");
+        std::this_thread::sleep_for(std::chrono::milliseconds(2));
+    }
 
-  auto hex_string = hex_encode({'A', 'A', 'A', 'A'});
-  jsx::log_info("Printing \"AAAA\" in hex: %s", hex_string.c_str());
+    uint64_t log_time = 0;
+    {
+        jsx::ScopedTimer log_timer(&log_time);
+        jsx::log_info("This is an info message.");
+        jsx::log_debug("This is a debug message.");
+        jsx::log_trace("This is a trace message.");
+        std::this_thread::sleep_for(std::chrono::milliseconds(7));
+    }
 
-  auto dump = jsx::hex_format_dump(dump_data, sizeof(dump_data), 0x1000);
-  jsx::log_debug("%s", dump.c_str());
+    auto hex_string = hex_encode({ 'A', 'A', 'A', 'A' });
+    jsx::log_info("Printing \"AAAA\" in hex: %s", hex_string.c_str());
 
-  std::this_thread::sleep_for(std::chrono::milliseconds(34));
-  jsx::log_info("All functionality tested in %llu ms. (Expected: ~41 ms.)",
-                clock.elapsed_ms());
-  jsx::log_info("Info and debug messages logged in %llu ms. (Expected: ~7 ms.)",
-                info_debug_time);
+    auto dump = jsx::hex_format_dump(dump_data, sizeof(dump_data), 0x1000);
+    jsx::log_debug("%s", dump.c_str());
 
-  return 0;
+    std::this_thread::sleep_for(std::chrono::milliseconds(34));
+    jsx::log_info("All functionality tested in %llu ms. (Expected: ~41 ms.)", clock.elapsed_ms());
+    jsx::log_info("Info and debug messages logged in %llu ms. (Expected: ~7 ms.)", log_time);
+
+    return 0;
 }

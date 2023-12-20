@@ -40,18 +40,22 @@
 namespace jsx {
 
 static struct LogConfig {
-  LogLevel level = LogLevel::Info;
-  bool use_color = false;
+    LogLevel level = LogLevel::Info;
+    bool use_color = false;
 } g_log_config;
 
-void set_log_level(LogLevel level) { g_log_config.level = level; }
+void set_log_level(LogLevel level)
+{
+    g_log_config.level = level;
+}
 
-void set_log_option(LogOption option, bool enabled) {
-  switch (option) {
-  case LogOption::Color:
-    g_log_config.use_color = enabled;
-    break;
-  }
+void set_log_option(LogOption option, bool enabled)
+{
+    switch (option) {
+    case LogOption::Color:
+        g_log_config.use_color = enabled;
+        break;
+    }
 }
 
 constexpr auto ANSI_FG_RED = "\x1b[31m";
@@ -60,56 +64,78 @@ constexpr auto ANSI_FG_YELLOW = "\x1b[33m";
 constexpr auto ANSI_FG_BLUE = "\x1b[34m";
 constexpr auto ANSI_FG_RESET = "\x1b[0m";
 
-void set_log_color(FILE *stream, LogLevel level) {
-  if (!g_log_config.use_color)
-    return;
+void set_log_color(FILE *stream, LogLevel level)
+{
+    if (!g_log_config.use_color)
+        return;
 
-  switch (level) {
-  case LogLevel::Error:
-    std::fprintf(stream, ANSI_FG_RED);
-    break;
-  case LogLevel::Warning:
-    std::fprintf(stream, ANSI_FG_YELLOW);
-    break;
-  case LogLevel::Debug:
-    std::fprintf(stream, ANSI_FG_GREEN);
-    break;
-  case LogLevel::Trace:
-    std::fprintf(stream, ANSI_FG_BLUE);
-    break;
-  default:
-    break;
-  }
+    switch (level) {
+    case LogLevel::Error:
+        std::fprintf(stream, ANSI_FG_RED);
+        break;
+    case LogLevel::Warning:
+        std::fprintf(stream, ANSI_FG_YELLOW);
+        break;
+    case LogLevel::Debug:
+        std::fprintf(stream, ANSI_FG_GREEN);
+        break;
+    case LogLevel::Trace:
+        std::fprintf(stream, ANSI_FG_BLUE);
+        break;
+    default:
+        break;
+    }
 }
 
-void clear_log_color(FILE *stream) {
-  if (!g_log_config.use_color)
-    return;
+void clear_log_color(FILE *stream)
+{
+    if (!g_log_config.use_color)
+        return;
 
-  std::fprintf(stream, ANSI_FG_RESET);
+    std::fprintf(stream, ANSI_FG_RESET);
 }
 
-void log_internal(LogLevel level, char const *format, va_list args) {
-  auto stream = level == LogLevel::Error ? stderr : stdout;
+void log_internal(LogLevel level, char const *format, va_list args)
+{
+    auto stream = level == LogLevel::Error ? stderr : stdout;
 
-  set_log_color(stream, level);
-  std::vfprintf(stream, format, args);
-  clear_log_color(stream);
-  std::fprintf(stream, "\n");
+    set_log_color(stream, level);
+    std::vfprintf(stream, format, args);
+    clear_log_color(stream);
+    std::fprintf(stream, "\n");
 }
 
-#define INTERNAL_LOG_BODY(_level)                                              \
-  std::va_list args;                                                           \
-  if ((_level) > g_log_config.level)                                           \
-    return;                                                                    \
-  va_start(args, format);                                                      \
-  log_internal(_level, format, args);                                          \
-  va_end(args);
+#define INTERNAL_LOG_BODY(_level)       \
+    std::va_list args;                  \
+    if ((_level) > g_log_config.level)  \
+        return;                         \
+    va_start(args, format);             \
+    log_internal(_level, format, args); \
+    va_end(args);
 
-void log_error(char const *format, ...) { INTERNAL_LOG_BODY(LogLevel::Error); }
-void log_info(char const *format, ...) { INTERNAL_LOG_BODY(LogLevel::Info); }
-void log_warn(char const *format, ...) { INTERNAL_LOG_BODY(LogLevel::Warning); }
-void log_debug(char const *format, ...) { INTERNAL_LOG_BODY(LogLevel::Debug); }
-void log_trace(char const *format, ...) { INTERNAL_LOG_BODY(LogLevel::Trace); }
+void log_error(char const *format, ...)
+{
+    INTERNAL_LOG_BODY(LogLevel::Error);
+}
 
-} // namespace jsx
+void log_info(char const *format, ...)
+{
+    INTERNAL_LOG_BODY(LogLevel::Info);
+}
+
+void log_warn(char const *format, ...)
+{
+    INTERNAL_LOG_BODY(LogLevel::Warning);
+}
+
+void log_debug(char const *format, ...)
+{
+    INTERNAL_LOG_BODY(LogLevel::Debug);
+}
+
+void log_trace(char const *format, ...)
+{
+    INTERNAL_LOG_BODY(LogLevel::Trace);
+}
+
+}

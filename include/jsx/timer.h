@@ -42,23 +42,23 @@ using Instant = std::chrono::time_point<std::chrono::high_resolution_clock>;
 
 /// Simple "high-resolution" timer for measuring elapsed time.
 class Timer {
-  Instant m_start;
+    Instant m_start;
 
 public:
-  /// Create a new timer.
-  ///
-  /// Automatically starts the timer if \p auto_start is true (default).
-  explicit Timer(bool auto_start = true);
+    /// Create a new timer.
+    ///
+    /// Automatically starts the timer if \p auto_start is true (default).
+    explicit Timer(bool auto_start = true);
 
-  /// Reset the starting point of the timer to now.
-  void reset();
+    /// Reset the starting point of the timer to now.
+    void reset();
 
-  /// Get the time the timer was started at.
-  [[nodiscard]] Instant start() const;
+    /// Get the time the timer was started at.
+    [[nodiscard]] Instant start() const;
 
-  /// Get the amount of elapsed time (in milliseconds) since the timer was
-  /// started.
-  [[nodiscard]] uint64_t elapsed_ms() const;
+    /// Get the amount of elapsed time (in milliseconds) since the timer was
+    /// started.
+    [[nodiscard]] uint64_t elapsed_ms() const;
 };
 
 /// Simple scoped-based "high-resolution" timer for measuring elapsed time.
@@ -67,20 +67,20 @@ public:
 /// elapsed time when it falls out of scope. The elapsed time can either be
 /// written to a pre-determined location or by executing a callback.
 class ScopedTimer : public Timer {
-  using TimeoutCallbackMs = std::function<void(uint64_t elapsed_ms)>;
+    using TimeoutCallbackMs = std::function<void(uint64_t elapsed_ms)>;
 
-  uint64_t *m_elapsed_ms_out;
-  TimeoutCallbackMs m_on_destroy_callback;
+    uint64_t *m_elapsed_ms_out;
+    TimeoutCallbackMs m_on_destroy_callback;
 
 public:
-  /// Create a new scoped timer which writes the elapsed time (in milliseconds)
-  /// to \p elapsed_ms_out upon falling out of scope.
-  explicit ScopedTimer(uint64_t *elapsed_ms_out);
+    /// Create a new scoped timer which writes the elapsed time (in milliseconds)
+    /// to \p elapsed_ms_out upon falling out of scope.
+    explicit ScopedTimer(uint64_t *elapsed_ms_out);
 
-  /// Create a new scoped timer which runs the provided \p on_destroy callback
-  /// (with the elapsed time as a parameter) upon falling out of scope.
-  explicit ScopedTimer(TimeoutCallbackMs on_destroy);
-  ~ScopedTimer();
+    /// Create a new scoped timer which runs the provided \p on_destroy callback
+    /// (with the elapsed time as a parameter) upon falling out of scope.
+    explicit ScopedTimer(TimeoutCallbackMs on_destroy);
+    ~ScopedTimer();
 };
 
-} // namespace jsx
+}
