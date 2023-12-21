@@ -113,6 +113,12 @@ void log_internal(LogLevel level, char const *format, va_list args)
     log_internal(_level, format, args); \
     va_end(args);
 
+void log_fatal(char const *format, ...)
+{
+    INTERNAL_LOG_BODY(LogLevel::Error);
+    std::exit(1);
+}
+
 void log_error(char const *format, ...)
 {
     INTERNAL_LOG_BODY(LogLevel::Error);

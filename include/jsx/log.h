@@ -59,6 +59,9 @@ void set_log_option(LogOption option, bool enabled);
 
 #define JSX_LOG_FORMAT __attribute__((format(printf, 1, 2)))
 
+/// Log a formatted message to the standard error stream, then terminate.
+JSX_LOG_FORMAT void log_fatal(char const *format, ...);
+
 /// Log a formatted message to the standard error stream.
 JSX_LOG_FORMAT void log_error(char const *format, ...);
 

@@ -14,9 +14,14 @@ endfunction()
 add_jsx_library(hex)
 add_jsx_library(log)
 add_jsx_library(timer)
+add_jsx_library(reader)
 
 install(DIRECTORY include/jsx DESTINATION include)
 
 add_executable(playground test/playground.cpp)
 target_compile_features(playground PRIVATE cxx_std_17)
 target_link_libraries(playground PUBLIC jsx_hex jsx_log jsx_timer)
+
+add_executable(reader test/reader.cpp)
+target_compile_features(reader PRIVATE cxx_std_17)
+target_link_libraries(reader PUBLIC jsx_hex jsx_reader jsx_log)
