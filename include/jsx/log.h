@@ -33,6 +33,8 @@
 
 #pragma once
 
+#include <string>
+
 namespace jsx {
 
 /// Log output levels.
@@ -61,20 +63,48 @@ void set_log_option(LogOption option, bool enabled);
 
 /// Log a formatted message to the standard error stream, then terminate.
 JSX_LOG_FORMAT void log_fatal(char const *format, ...);
+void log_fatal(std::string const &message);
+inline void log_fatal(std::string const &message)
+{
+    log_fatal("%s", message.c_str());
+}
 
 /// Log a formatted message to the standard error stream.
 JSX_LOG_FORMAT void log_error(char const *format, ...);
+void log_error(std::string const &message);
+inline void log_error(std::string const &message)
+{
+    log_error("%s", message.c_str());
+}
 
 /// Log a formatted warning message to the standard output stream.
 JSX_LOG_FORMAT void log_warn(char const *format, ...);
+void log_warn(std::string const &message);
+inline void log_warn(std::string const &message)
+{
+    log_warn("%s", message.c_str());
+}
 
 /// Log a formatted info message to the standard output stream.
 JSX_LOG_FORMAT void log_info(char const *format, ...);
+void log_info(std::string const &message);
+inline void log_info(std::string const &message)
+{
+    log_info("%s", message.c_str());
+}
 
 /// Log a formatted debug message to the standard output stream.
 JSX_LOG_FORMAT void log_debug(char const *format, ...);
+inline void log_debug(std::string const &message)
+{
+    log_debug("%s", message.c_str());
+}
 
 /// Log a formatted trace message to the standard output stream.
 JSX_LOG_FORMAT void log_trace(char const *format, ...);
+inline void log_trace(std::string const &message)
+{
+    log_trace("%s", message.c_str());
+}
 
 }
