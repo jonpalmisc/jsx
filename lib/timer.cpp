@@ -31,7 +31,7 @@
 //  POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <jsx/timer.h>
+#include "jsx/timer.h"
 
 namespace jsx {
 

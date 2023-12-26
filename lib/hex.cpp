@@ -31,7 +31,7 @@
 //  POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <jsx/hex.h>
+#include "jsx/hex.h"
 
 #include <iomanip>
 #include <sstream>

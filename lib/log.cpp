@@ -31,7 +31,7 @@
 //  POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <jsx/log.h>
+#include "jsx/log.h"
 
 #include <cstdarg>
 #include <cstdio>
