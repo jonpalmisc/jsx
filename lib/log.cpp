@@ -42,6 +42,7 @@ namespace jsx {
 static struct LogConfig {
     LogLevel level = LogLevel::Info;
     bool use_color = false;
+    bool add_newline = true;
 } g_log_config;
 
 void set_log_level(LogLevel level)
@@ -54,6 +55,8 @@ void set_log_option(LogOption option, bool enabled)
     switch (option) {
     case LogOption::Color:
         g_log_config.use_color = enabled;
+    case LogOption::AutoNewline:
+        g_log_config.add_newline = enabled;
         break;
     }
 }
@@ -102,7 +105,9 @@ void log_internal(LogLevel level, char const *format, va_list args)
     set_log_color(stream, level);
     std::vfprintf(stream, format, args);
     clear_log_color(stream);
-    std::fprintf(stream, "\n");
+
+    if (g_log_config.add_newline)
+        std::fprintf(stream, "\n");
 }
 
 #define INTERNAL_LOG_BODY(_level)       \

@@ -51,6 +51,9 @@ enum class LogLevel {
 enum class LogOption {
     /// Color log messages by type.
     Color,
+
+    /// Automatically terminate messages with newline characters.
+    AutoNewline,
 };
 
 /// Set the log output level.
